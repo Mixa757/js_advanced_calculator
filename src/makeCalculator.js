@@ -1,48 +1,63 @@
 'use strict';
 
 function makeCalculator() {
-  let currentResult = 0; // Змінив назву, щоб уникнути плутанини з 'this.result'
+  let _result = 0; // Внутрішня змінна для зберігання поточного результату
 
   const calculator = {
-    // Expose result as a property
+    // Геттер для доступу до поточного результату
     get result() {
-      return currentResult;
+      return _result;
     },
 
-    // Методи операцій, які просто повертають результат (не змінюють state)
-    add(a, b) {
-      return a + b;
+    // Метод додавання: безпосередньо змінює _result і повертає this для ланцюга
+    add: function (number) {
+      _result += number;
+
+      return this;
     },
 
-    subtract(a, b) {
-      return a - b;
+    subtract: function (number) {
+      _result -= number;
+
+      return this;
     },
 
-    multiply(a, b) {
-      return a * b;
+    // Метод множення: безпосередньо змінює _result і повертає this для ланцюга
+    multiply: function (number) {
+      _result *= number;
+
+      return this;
     },
 
-    divide(a, b) {
-      // Додаємо перевірку ділення на нуль
-      if (b === 0) {
-        return NaN;
+    // Метод ділення: безпосередньо змінює _result і повертає this для ланцюга
+    divide: function (number) {
+      if (number === 0) {
+        _result = NaN; // Встановлюємо результат як NaN при діленні на нуль
+
+        return this;
       }
+      _result /= number;
 
-      return a / b;
+      return this;
     },
 
-    // Метод operate тепер відповідає за оновлення 'currentResult'
-    operate(callback, number) {
-      currentResult = callback(currentResult, number);
+    // Метод operate: приймає функцію (метод калькулятора) та число.
+    // Він викликає наданий метод, передаючи йому число.
+    // Оскільки методи add/subtract/etc. вже змінюють _result і повертають this,
+    // operate просто викликає їх.
+    operate: function (method, number) {
+      // Викликаємо наданий метод, прив'язуючи його до поточного об'єкта 'this'
+      // і передаючи 'number' як аргумент.
+      method.call(this, number);
 
-      return this; // Enable chaining
+      return this; // Дозволяє ланцюгові виклики operate
     },
 
-    // Метод reset
-    reset() {
-      currentResult = 0;
+    // Метод reset: скидає _result до 0 і повертає this для ланцюга
+    reset: function () {
+      _result = 0;
 
-      return this; // Enable chaining
+      return this;
     },
   };
 
